@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Viewer</title>
+
+</head>
+
+<body>
+    <img src="#" alt="product" id="img">
+    <input type="range" min="0" max="100" value="0" name="x" id="x">
+    <input type="range" min="0" max="100" value="0" name="y" id="y">
+    <script type="module">
+        import { faker } from 'https://cdn.skypack.dev/@faker-js/faker';
+        const img = document.getElementById("img");
+        const x = document.getElementById("x");
+        const y = document.getElementById("y");
+
+
+        const images = Array.from({ length: 100 }, () => Array.from({ length: 100 }));
+
+
+        x.addEventListener("change", (e) => {
+            img.setAttribute("src", images[x.value][y.value])
+        })
+        y.addEventListener("change", (e) => {
+            img.setAttribute("src", images[x.value][y.value])
+        })
+
+        getImgs();
+
+        async function getImgs() {
+            for (const xi of Array.from({ length: 100 }, (_, i) => i)) {
+                for (const yi of Array.from({ length: 100 }, (_, i) => i)) {
+                    
+                    try {
+                        const response = await fetch(await faker.image.city(100,100));
+
+                        if (!response.ok) {
+                            throw new Error('Image fetch failed');
+                        }
+
+                        const blob = await response.blob();
+                        const reader = new FileReader();
+
+                        reader.onloadend = () => {
+                            images[xi][yi] = reader.result;
+                            console.log("loaded ", xi, yi, images)
+                            // Use the data URL as needed
+                            // For example: processImageData(dataUrl);
+                        };
+
+                        reader.onerror = (error) => {
+                            console.error('Error reading image:', error);
+                        };
+
+                        reader.readAsDataURL(blob);
+                    } catch (error) {
+                        console.error('Error fetching or converting image:', error);
+                    }
+                }
+            }
+        }
+
+
+    </script>
+</body>
+
+
+</html>
